@@ -10,8 +10,9 @@
 #
 
 
-import os
-import importlib.metadata
+import  os
+import  importlib.metadata
+import  pfdo
 
 from chrisapp.base import ChrisApp
 
