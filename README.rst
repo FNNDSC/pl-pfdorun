@@ -19,15 +19,21 @@ The pf-pfdorun plugin is a general purpose "swiss army" knife DS plugin that can
 Description
 -----------
 
-``pfdorun`` is a ChRIS-based application that...
+The pf-pfdorun plugin is a general purpose "swiss army" knife type plugin that can be used to fill the space of needing to run/exec CLI type commands on input directores/data. For instance
 
+    * Create explicit (g)zip files of data
+    * Un(g)zip data
+    * Reorganize data in the input dir in some idiosyncratic
+      fashion in the ouput director
+
+In some respects it functions as a dynamic "impedence matching" plugin that can be used to per-usecase match the output directories and files of one plugin to the input requirements of another.
 
 Usage
 -----
 
 .. code::
 
-    python pfdorun.py
+    [python] pfdorun
         [-h|--help]
         [--json] [--man] [--meta]
         [--savejson <DIR>]
@@ -43,24 +49,24 @@ Arguments
 
     [-h] [--help]
     If specified, show help message and exit.
-    
+
     [--json]
     If specified, show json representation of app and exit.
-    
+
     [--man]
     If specified, print (this) man page and exit.
 
     [--meta]
     If specified, print plugin meta data and exit.
-    
-    [--savejson <DIR>] 
-    If specified, save json representation file to DIR and exit. 
-    
+
+    [--savejson <DIR>]
+    If specified, save json representation file to DIR and exit.
+
     [-v <level>] [--verbosity <level>]
     Verbosity level for app. Not used currently.
-    
+
     [--version]
-    If specified, print version number and exit. 
+    If specified, print version number and exit.
 
 
 Getting inline help is:
@@ -79,7 +85,7 @@ You need you need to specify input and output directories using the `-v` flag to
 
     docker run --rm -u $(id -u)                             \
         -v $(pwd)/in:/incoming -v $(pwd)/out:/outgoing      \
-        fnndsc/pl-pfdorun pfdorun                        \
+        fnndsc/pl-pfdorun pfdorun                           \
         /incoming /outgoing
 
 
