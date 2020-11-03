@@ -33,6 +33,7 @@ COPY . .
 RUN pip install --upgrade pip                                   && \
     pip install -r requirements.txt                             && \
     pip install .                                               && \
+    apt update  && apt -y upgrade                               && \
     apt install -y zip unzip inetutils-tools                    && \
     apt install -y bc binutils  perl psmisc                     && \
     apt install -y tar uuid-dev                                 && \
