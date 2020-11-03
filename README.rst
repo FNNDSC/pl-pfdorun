@@ -83,10 +83,11 @@ You need you need to specify input and output directories using the `-v` flag to
 
 .. code:: bash
 
-    docker run --rm -u $(id -u)                             \
-        -v $(pwd)/in:/incoming -v $(pwd)/out:/outgoing      \
-        fnndsc/pl-pfdorun pfdorun                           \
-        /incoming /outgoing
+    docker run --rm -u $(id -u) -ti                                         \
+      -v $(pwd)/in:/in -v $(pwd)/out:/out                                   \
+      -v $(pwd)/pfdorun:/usr/local/lib/python3.8/dist-packages/pfdorun:     \
+      fnndsc/pl-pfdorun pfdorun                                             \
+      /in /out
 
 
 Development
