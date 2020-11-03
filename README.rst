@@ -281,8 +281,8 @@ Copy files from the input dir to the output:
             docker run --rm -u $(id -u)                                 \
                 -v $(pwd)/in:/incoming -v $(pwd)/out:/outgoing          \
                 fnndsc/pl-pfdorun pfdorun                               \
-                --exec "copy %inputWorkingDir/%inputWorkingFile
-                             %outputWorkingDir/%inputWorkingFile"       \
+                --exec "cp %inputWorkingDir/%inputWorkingFile
+                           %outputWorkingDir/%inputWorkingFile"         \
                 --threads 0 --printElapsedTime                          \
                 --verbose 5                                             \
                 /incoming /outgoing
