@@ -148,15 +148,15 @@ Getting inline help:
 CLI Specification
 ~~~~~~~~~~~~~~~~~
 
-Any text in the CLI prefixed with a percent char `%` is interpreted in one of two ways.
+Any text in the CLI prefixed with a percent char ``%`` is interpreted in one of two ways.
 
-First, any CLI to the ``pfdo_run`` itself can be accessed via `%`. Thus, for example a ``%outputDir`` in the ``--exec`` string will be expanded to the ``outputDir`` of the ``pfdo_run``.
+First, any CLI to the ``pfdo_run`` itself can be accessed via ``%``. Thus, for example a ``%outputDir`` in the ``--exec`` string will be expanded to the ``outputDir`` of the ``pfdo_run``.
 
 Secondly, three internal '%' variables are available:
 
-* `%inputWorkingDir`  - the current input tree working directory
-* '%outputWorkingDir' - the current output tree working directory
-* '%inputWorkingFile' - the current file being processed
+* ``%inputWorkingDir``  - the current input tree working directory
+* ``%outputWorkingDir`` - the current output tree working directory
+* ``%inputWorkingFile`` - the current file being processed
 
 These internal variables allow for contextual specification of values. For example, a simple CLI touch command could be specified as
 
@@ -174,7 +174,7 @@ or a command to convert an input ``png`` to an output ``jpg`` using the ImageMag
 Special Functions
 ~~~~~~~~~~~~~~~~~
 
-Furthermore, `pfdo_run` offers the ability to apply some interal functions to a tag. The template for specifying a function to apply is:
+Furthermore, ``pfdo_run`` offers the ability to apply some interal functions to a tag. The template for specifying a function to apply is:
 
 .. code::
 
@@ -188,7 +188,7 @@ Possible args to the <functionName> are separated by pipe "|" characters. For ex
 
     %_strrepl|.|-_inputWorkingFile.txt
 
-will replace all occurences of '.' in the %inputWorkingFile with '-'. Also of interest, the trailing ".txt" is preserved in the final pattern for the result.
+will replace all occurences of ``.`` in the ``%inputWorkingFile`` with ``-``. Also of interest, the trailing ``.txt`` is preserved in the final pattern for the result.
 
 The following functions are available:
 
@@ -196,13 +196,13 @@ The following functions are available:
 
     %_md5[|<len>]_<tagName>
 
-    Apply an 'md5' hash to the value referenced by <tagName> and optionally return only the first <len> characters.
+    Apply an ``md5`` hash to the value referenced by <tagName> and optionally return only the first <len> characters.
 
 .. code::
 
     %_strmsk|<mask>_<tagName>
 
-    Apply a simple mask pattern to the value referenced by <tagName>. Chars that are "*" in the mask are passed through unchanged. The mask and its target should be the same length.
+    Apply a simple mask pattern to the value referenced by ``<tagName>``. Chars that are ``*`` in the mask are passed through unchanged. The mask and its target should be the same length.
 
 .. code::
 
@@ -227,7 +227,7 @@ Functions cannot currently be nested.
 Run
 ~~~
 
-You need you need to specify input and output directories using the `-v` flag to `docker run`.
+You need you need to specify input and output directories using the ``-v`` flag to ``docker run``.
 
 
 .. code:: bash
@@ -249,9 +249,7 @@ Build the Docker container:
     docker build -t local/pl-pfdorun .
 
 
-Python dependencies can be added to ``setup.py``.
-After a successful build, track which dependencies you have installed by
-generating the `requirements.txt` file.
+Python dependencies can be added to ``setup.py``. After a successful build, track which dependencies you have installed by generating the `requirements.txt` file.
 
 .. code:: bash
 
@@ -269,8 +267,73 @@ For the sake of reproducible builds, be sure that ``requirements.txt`` is up to 
 Examples
 --------
 
-Put some examples here!
+Copy files from the input dir to the output:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+.. code:: bash
+
+            docker run --rm -u $(id -u)                                 \
+                -v $(pwd)/in:/incoming -v $(pwd)/out:/outgoing          \
+                fnndsc/pl-pfdorun pfdorun                               \
+                --exec "copy %inputWorkingDir/%inputWorkingFile
+                             %outputWorkingDir/%inputWorkingFile"       \
+                --threads 0 --printElapsedTime                          \
+                --verbose 5                                             \
+                /incoming /outgoing
+
+Tar gzip up the input dir:
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Assume the ``inputDir`` has a file, ``input.json``. We use that file as a tag to search in order to process the whole directory tree:
+
+.. code:: bash
+
+    docker run -ti --rm -u $(id -u)                                         \
+        -v /home/rudolphpienaar/data/convert_test:/incoming                 \
+        -v $(pwd)/out:/outgoing                                             \
+        local/pl-pfdorun                                                    \
+        pfdorun --inputFile input.json                                      \
+                --exec "tar cvfz %outputDir/out.tgz %inputDir"              \
+                --threads 0                                                 \
+                --printElapsedTime                                          \
+                --verbose 5                                                 \
+                /incoming /outgoing
+
+
+Unpack a tarball that is in the input dir tree:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Assume the ``inputDir`` has a file ending in ``tgz`` somewhere in the tree we wish to unpack:
+
+.. code:: bash
+
+    docker run -ti --rm -u $(id -u)                                         \
+        -v /home/rudolphpienaar/data/convert_test:/incoming                 \
+        -v $(pwd)/out:/outgoing                                             \
+        local/pl-pfdorun                                                    \
+        pfdorun --filterExpression tgz                                      \
+                --exec "tar xvfz %inputWorkingDir/%inputWorkingFile -C %outputDir"  \
+                --threads 0                                                 \
+                --printElapsedTime                                          \
+                --verbose 5                                                 \
+                /incoming /outgoing
+
+
+Debug
+-----
+
+To debug the containerized version of this plugin, simply volume map the source directories of the repo into the relevant locations of the container image:
+
+.. code:: bash
+
+    docker run -ti --rm -v $PWD/in:/incoming:ro -v $PWD/out:/outgoing:rw    \
+        -v $PWD/pfdorun:/usr/local/lib/python3.8/dist-packages/pfdorun:ro   \
+        local/pl-pfdorun pfdorun /in /out
+
+Remember to use the ``-ti`` flag for interactivity!
+
+
+*30*
 
 .. image:: https://raw.githubusercontent.com/FNNDSC/cookiecutter-chrisapp/master/doc/assets/badge/light.png
     :target: https://chrisstore.co
