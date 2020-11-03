@@ -19,61 +19,205 @@ The pf-pfdorun plugin is a general purpose "swiss army" knife DS plugin that can
 Description
 -----------
 
-The pf-pfdorun plugin is a general purpose "swiss army" knife type plugin that can be used to fill the space of needing to run/exec CLI type commands on input directores/data. For instance
 
-    * Create explicit (g)zip files of data
-    * Un(g)zip data
-    * Reorganize data in the input dir in some idiosyncratic
-      fashion in the ouput director
+The pf-pfdorun plugin is a general purpose "swiss army" knife type plugin that can be used to perform somewhat arbitrary exec command line type commands on input directores/data. For instance:
 
-In some respects it functions as a dynamic "impedence matching" plugin that can be used to per-usecase match the output directories and files of one plugin to the input requirements of another.
+    * copy (subsets of) data from the input space to output;
+    * create explicit (g)zip files of data;
+    * un(g)zip data;
+    * reorganize data in the input dir in some idiosyncratic
+      fashion in the ouput directory;
+    * misc operations on images using imagemagick;
+    * and others..
+
+In some  respects  it functions as a  dynamic "impedence  matching" plugin that can be used to per-usecase match the output directories and files of one plugin to the input requirements of another. This plugin is for the most a simple wrapper around an underlying pfdo_run CLI exec module.
 
 Usage
 -----
 
 .. code::
 
-    [python] pfdorun
-        [-h|--help]
-        [--json] [--man] [--meta]
-        [--savejson <DIR>]
-        [-v|--verbosity <level>]
-        [--version]
-        <inputDir> <outputDir>
+        [python] pfdorun                                                \
+            --exec <CLIcmdToExec>                                       \
+            [-i|--inputFile <inputFile>]                                \
+            [-f|--filterExpression <someFilter>]                        \
+            [--analyzeFileIndex <someIndex>]                            \
+            [--outputLeafDir <outputLeafDirFormat>]                     \
+            [--threads <numThreads>]                                    \
+            [--noJobLogging]                                            \
+            [--test]                                                    \
+            [-h] [--help]                                               \
+            [--json]                                                    \
+            [--man]                                                     \
+            [--meta]                                                    \
+            [--savejson <DIR>]                                          \
+            [--verbose <level>]                                         \
+            [--version]                                                 \
+            <inputDir>                                                  \
+            <outputDir>
 
 
 Arguments
 ~~~~~~~~~
 
-.. code::
+.. code:: html
 
-    [-h] [--help]
-    If specified, show help message and exit.
+        --exec <CLIcmdToExec>
+        The command line expression to apply at each directory node of the
+        input tree. See the CLI SPECIFICATION section for more information.
 
-    [--json]
-    If specified, show json representation of app and exit.
+        [-i|--inputFile <inputFile>]
+        An optional <inputFile> specified relative to the <inputDir>. If
+        specified, then do not perform a directory walk, but function only
+        on the directory containing this file.
 
-    [--man]
-    If specified, print (this) man page and exit.
+        [-f|--filterExpression <someFilter>]
+        An optional string to filter the files of interest from the
+        <inputDir> tree.
 
-    [--meta]
-    If specified, print plugin meta data and exit.
+        [--analyzeFileIndex <someIndex>]
+        An optional string to control which file(s) in a specific directory
+        to which the analysis is applied. The default is "-1" which implies
+        *ALL* files in a given directory. Other valid <someIndex> are:
 
-    [--savejson <DIR>]
-    If specified, save json representation file to DIR and exit.
+            'm':   only the "middle" file in the returned file list
+            "f":   only the first file in the returned file list
+            "l":   only the last file in the returned file list
+            "<N>": the file at index N in the file list. If this index
+                   is out of bounds, no analysis is performed.
 
-    [-v <level>] [--verbosity <level>]
-    Verbosity level for app. Not used currently.
+            "-1":  all files.
 
-    [--version]
-    If specified, print version number and exit.
+        [--outputLeafDir <outputLeafDirFormat>]
+        If specified, will apply the <outputLeafDirFormat> to the output
+        directories containing data. This is useful to blanket describe
+        final output directories with some descriptive text, such as
+        'anon' or 'preview'.
 
+        This is a formatting spec, so
 
-Getting inline help is:
+            --outputLeafDir 'preview-%%s'
+
+        where %%s is the original leaf directory node, will prefix each
+        final directory containing output with the text 'preview-' which
+        can be useful in describing some features of the output set.
+
+        [--threads <numThreads>]
+        If specified, break the innermost analysis loop into <numThreads>
+        threads.
+
+        [--noJobLogging]
+        If specified, then suppress the logging of per-job output. Usually
+        each job that is run will have, in the output directory, three
+        additional files:
+
+                %inputWorkingFile-returncode
+                %inputWorkingFile-stderr
+                %inputWorkingFile-stdout
+
+        By specifying this option, the above files are not recorded.
+
+        [-h] [--help]
+        If specified, show help message and exit.
+
+        [--json]
+        If specified, show json representation of app and exit.
+
+        [--man]
+        If specified, print (this) man page and exit.
+
+        [--meta]
+        If specified, print plugin meta data and exit.
+
+        [--savejson <DIR>]
+        If specified, save json representation file to DIR and exit.
+
+        [--verbose <level>]
+        Verbosity level for app.
+
+        [--version]
+        If specified, print version number and exit.
+
+Getting inline help:
+~~~~~~~~~~~~~~~~~~~~
 
 .. code:: bash
 
     docker run --rm fnndsc/pl-pfdorun pfdorun --man
+
+CLI Specification
+~~~~~~~~~~~~~~~~~
+
+Any text in the CLI prefixed with a percent char '%' is interpreted in one of two ways.
+
+First, any CLI to the ``pfdo_run`` itself can be accessed via '%'. Thus, for example a ``%outputDir`` in the ``--exec`` string will be expanded to the ``outputDir`` of the ``pfdo_run``.
+
+Secondly, three internal '%' variables are available:
+
+    * '%inputWorkingDir'  - the current input tree working directory
+    * '%outputWorkingDir' - the current output tree working directory
+    * '%inputWorkingFile' - the current file being processed
+
+These internal variables allow for contextual specification of values. For example, a simple CLI touch command could be specified as
+
+.. code::
+
+    --exec "touch %outputWorkingDir/%inputWorkingFile"
+
+or a command to convert an input ``png`` to an output ``jpg`` using the ImageMagick ``convert`` utility
+
+.. code::
+
+    --exec "convert %inputWorkingDir/%inputWorkingFile
+                    %outputWorkingDir/%inputWorkingFile.jpg"
+
+Special Functions
+~~~~~~~~~~~~~~~~~
+
+Furthermore, `pfdo_run` offers the ability to apply some interal functions to a tag. The template for specifying a function to apply is:
+
+.. code::
+
+    %_<functionName>[|arg1|arg2|...]_<tag>
+
+thus, a function is identified by a function name that is prefixed and suffixed by an underscore and appears in front of the tag to process.
+
+Possible args to the <functionName> are separated by pipe "|" characters. For example a string snippet that contains
+
+.. code::
+
+    %_strrepl|.|-_inputWorkingFile.txt
+
+will replace all occurences of '.' in the %inputWorkingFile with '-'. Also of interest, the trailing ".txt" is preserved in the final pattern for the result.
+
+The following functions are available:
+
+.. code::
+
+    %_md5[|<len>]_<tagName>
+
+    Apply an 'md5' hash to the value referenced by <tagName> and optionally
+    return only the first <len> characters.
+
+    %_strmsk|<mask>_<tagName>
+    Apply a simple mask pattern to the value referenced by <tagName>. Chars
+    that are "*" in the mask are passed through unchanged. The mask and its
+    target should be the same length.
+
+    %_strrepl|<target>|<replace>_<tagName>
+    Replace the string <target> with <replace> in the value referenced by
+    <tagName>.
+
+    %_rmext_<tagName>
+    Remove the "extension" of the value referenced by <tagName>. This
+    of course only makes sense if the <tagName> denotes something with
+    an extension!
+
+    %_name_<tag>
+    Replace the value referenced by <tag> with a name generated by the
+    faker module.
+
+Functions cannot currently be nested.
 
 Run
 ~~~
