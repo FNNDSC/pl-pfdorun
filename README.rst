@@ -22,13 +22,13 @@ Description
 
 The pf-pfdorun plugin is a general purpose "swiss army" knife type plugin that can be used to perform somewhat arbitrary exec command line type commands on input directores/data. For instance:
 
- * copy (subsets of) data from the input space to output;
- * create explicit (g)zip files of data;
- * un(g)zip data;
- * reorganize data in the input dir in some idiosyncratic
-   fashion in the ouput directory;
- * misc operations on images using imagemagick;
- * and others..
+* copy (subsets of) data from the input space to output;
+* create explicit (g)zip files of data;
+* un(g)zip data;
+* reorganize data in the input dir in some idiosyncratic
+  fashion in the ouput directory;
+* misc operations on images using imagemagick;
+* and others..
 
 In some  respects  it functions as a  dynamic "impedence  matching" plugin that can be used to per-usecase match the output directories and files of one plugin to the input requirements of another. This plugin is for the most a simple wrapper around an underlying pfdo_run CLI exec module.
 
@@ -154,9 +154,9 @@ First, any CLI to the ``pfdo_run`` itself can be accessed via '%'. Thus, for exa
 
 Secondly, three internal '%' variables are available:
 
-    * '%inputWorkingDir'  - the current input tree working directory
-    * '%outputWorkingDir' - the current output tree working directory
-    * '%inputWorkingFile' - the current file being processed
+* '%inputWorkingDir'  - the current input tree working directory
+* '%outputWorkingDir' - the current output tree working directory
+* '%inputWorkingFile' - the current file being processed
 
 These internal variables allow for contextual specification of values. For example, a simple CLI touch command could be specified as
 
