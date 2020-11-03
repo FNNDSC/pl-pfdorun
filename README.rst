@@ -148,13 +148,13 @@ Getting inline help:
 CLI Specification
 ~~~~~~~~~~~~~~~~~
 
-Any text in the CLI prefixed with a percent char '%' is interpreted in one of two ways.
+Any text in the CLI prefixed with a percent char `%` is interpreted in one of two ways.
 
-First, any CLI to the ``pfdo_run`` itself can be accessed via '%'. Thus, for example a ``%outputDir`` in the ``--exec`` string will be expanded to the ``outputDir`` of the ``pfdo_run``.
+First, any CLI to the ``pfdo_run`` itself can be accessed via `%`. Thus, for example a ``%outputDir`` in the ``--exec`` string will be expanded to the ``outputDir`` of the ``pfdo_run``.
 
 Secondly, three internal '%' variables are available:
 
-* '%inputWorkingDir'  - the current input tree working directory
+* `%inputWorkingDir`  - the current input tree working directory
 * '%outputWorkingDir' - the current output tree working directory
 * '%inputWorkingFile' - the current file being processed
 
