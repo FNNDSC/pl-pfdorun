@@ -297,7 +297,7 @@ Assume the ``inputDir`` has a file, ``input.json``. We use that file as a tag to
     docker run -ti --rm -u $(id -u)                                         \
         -v /home/rudolphpienaar/data/convert_test:/incoming                 \
         -v $(pwd)/out:/outgoing                                             \
-        local/pl-pfdorun                                                    \
+        fnndsc/pl-pfdorun                                                   \
         pfdorun --inputFile input.json                                      \
                 --exec "tar cvfz %outputDir/out.tgz %inputDir"              \
                 --threads 0                                                 \
@@ -316,7 +316,7 @@ Assume the ``inputDir`` has a file ending in ``tgz`` somewhere in the tree we wi
     docker run -ti --rm -u $(id -u)                                         \
         -v /home/rudolphpienaar/data/convert_test:/incoming                 \
         -v $(pwd)/out:/outgoing                                             \
-        local/pl-pfdorun                                                    \
+        fnndsc/pl-pfdorun                                                   \
         pfdorun --filterExpression tgz                                      \
                 --exec "tar xvfz %inputWorkingDir/%inputWorkingFile -C %outputDir"  \
                 --threads 0                                                 \
@@ -334,7 +334,7 @@ To debug the containerized version of this plugin, simply volume map the source 
 
     docker run -ti --rm -v $PWD/in:/incoming:ro -v $PWD/out:/outgoing:rw    \
         -v $PWD/pfdorun:/usr/local/lib/python3.8/dist-packages/pfdorun:ro   \
-        local/pl-pfdorun pfdorun /in /out
+        fnndsc/pl-pfdorun pfdorun /in /out
 
 Remember to use the ``-ti`` flag for interactivity!
 
