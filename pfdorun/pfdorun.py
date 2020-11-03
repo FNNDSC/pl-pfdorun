@@ -23,18 +23,20 @@ Gstr_description = '''
         plugin that can be used to perform somewhat arbitrary exec command
         line type commands on input directores/data. For instance:
 
-            * copy (subsets of) data from the input space to output
-            * Create explicit (g)zip files of data
-            * Un(g)zip data
-            * Reorganize data in the input dir in some idiosyncratic
-              fashion in the ouput directory
+            * copy (subsets of) data from the input space to output;
+            * create explicit (g)zip files of data;
+            * un(g)zip data;
+            * reorganize data in the input dir in some idiosyncratic
+              fashion in the ouput directory;
+            * misc operations on images using imagemagick;
+            * and others..!
 
         In some  respects  it functions as a  dynamic "impedence  matching"
         plugin that can be used to per-usecase match the output directories
         and files of one plugin to the input requirements of another.
 
         This plugin is for the most a simple wrapper around an underlying
-        pfdo_run module.
+        pfdo_run CLI exec module.
 '''
 
 Gstr_title = """
@@ -74,7 +76,7 @@ Gstr_synopsis = """
             [--man]                                                     \\
             [--meta]                                                    \\
             [--savejson <DIR>]                                          \\
-            [-v <level>] [--verbosity <level>]                          \\
+            [--verbose <level>]                                         \\
             [--version]                                                 \\
             <inputDir>                                                  \\
             <outputDir>
@@ -103,8 +105,8 @@ Gstr_synopsis = """
 
         [-i|--inputFile <inputFile>]
         An optional <inputFile> specified relative to the <inputDir>. If
-        specified, then do not perform a directory walk, but convert only
-        this file.
+        specified, then do not perform a directory walk, but function only
+        on the directory containing this file.
 
         [-f|--filterExpression <someFilter>]
         An optional string to filter the files of interest from the
@@ -121,7 +123,7 @@ Gstr_synopsis = """
             "<N>": the file at index N in the file list. If this index
                    is out of bounds, no analysis is performed.
 
-            "-1" means all files.
+            "-1":  all files.
 
         [--outputLeafDir <outputLeafDirFormat>]
         If specified, will apply the <outputLeafDirFormat> to the output
@@ -167,8 +169,8 @@ Gstr_synopsis = """
         [--savejson <DIR>]
         If specified, save json representation file to DIR and exit.
 
-        [-v <level>] [--verbosity <level>]
-        Verbosity level for app. Not used currently.
+        [--verbose <level>]
+        Verbosity level for app.
 
         [--version]
         If specified, print version number and exit.
@@ -244,6 +246,69 @@ Gstr_synopsis = """
 
     Functions cannot currently be nested.
 
+    Examples
+    --------
+
+    Copy files from the input dir to the output:
+
+        docker run --rm -u $(id -u)                                         \\
+            -v $(pwd)/in:/incoming -v $(pwd)/out:/outgoing                  \\
+            fnndsc/pl-pfdorun pfdorun                                       \\
+            --exec "cp  %inputWorkingDir/%inputWorkingFile
+                        %outputWorkingDir/%inputWorkingFile"                \\
+            --threads 0 --printElapsedTime                                  \\
+            --verbose 5                                                     \\
+            /incoming /outgoing
+
+    Tar gzip up the input dir:
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    Assume the ``inputDir`` has a file, ``input.json``. We use that file as a
+    tag to search in order to process the whole directory tree:
+
+        docker run -ti --rm -u $(id -u)                                     \\
+            -v /home/rudolphpienaar/data/convert_test:/incoming             \\
+            -v $(pwd)/out:/outgoing                                         \\
+            local/pl-pfdorun                                                \\
+            pfdorun --inputFile input.json                                  \\
+                    --exec "tar cvfz %outputDir/out.tgz %inputDir"          \\
+                    --threads 0                                             \\
+                    --printElapsedTime                                      \\
+                    --verbose 5                                             \\
+                    /incoming /outgoing
+
+
+    Unpack a tarball that is in the input dir tree:
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    Assume the ``inputDir`` has a file ending in ``tgz`` somewhere in the tree we wish to unpack:
+
+        docker run -ti --rm -u $(id -u)                                     \\
+            -v /home/rudolphpienaar/data/convert_test:/incoming             \\
+            -v $(pwd)/out:/outgoing                                         \\
+            local/pl-pfdorun                                                \\
+            pfdorun --filterExpression tgz                                  \\
+                    --exec "tar xvfz %inputWorkingDir/%inputWorkingFile -C %outputDir"  \\
+                    --threads 0                                             \\
+                    --printElapsedTime                                      \\
+                    --verbose 5                                             \\
+                    /incoming /outgoing
+
+
+    Debug
+    -----
+
+    To debug the containerized version of this plugin, simply volume map the source directories of the repo into the relevant locations of the container image:
+
+    .. code:: bash
+
+        docker run -ti --rm -v $PWD/in:/incoming:ro -v $PWD/out:/outgoing:rw    \
+            -v $PWD/pfdorun:/usr/local/lib/python3.8/dist-packages/pfdorun:ro   \
+            local/pl-pfdorun pfdorun /in /out
+
+    Remember to use the ``-ti`` flag for interactivity!
+
+
 
 
 """.format(desc = Gstr_description)
@@ -289,13 +354,13 @@ class Pfdorun(ChrisApp):
         Define the CLI arguments accepted by this plugin app.
         Use self.add_argument to specify a new app argument.
         """
-        self.add_argument("-i", "--inputFile",
+        self.add_argument("--inputFile", "-i",
                             help        = "input file",
                             dest        = 'inputFile',
                             type        = str,
                             optional    = True,
                             default     = '')
-        self.add_argument("-e", "--exec",
+        self.add_argument("--exec", "-e",
                             type        = str,
                             optional    = True,
                             help        = "command line execution string to perform",
@@ -346,7 +411,7 @@ class Pfdorun(ChrisApp):
                             dest        = 'noJobLogging',
                             action      = 'store_true',
                             default     = False)
-        self.add_argument("-y", "--synopsis",
+        self.add_argument("--synopsis", "-y",
                             type        = bool,
                             optional    = True,
                             help        = "short synopsis",
@@ -383,6 +448,9 @@ class Pfdorun(ChrisApp):
         print('Version: %s' % self.get_version())
 
         # Some "helper" re-assignments
+        # This simply "maps" some variable names from this class to similar
+        # names in the module class, accounting for minor differences in
+        # variable names.
         options.str_desc    = Gstr_synopsis
         options.verbosity   = options.verbose
         options.inputDir    = options.inputdir
