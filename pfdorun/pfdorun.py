@@ -419,7 +419,7 @@ class Pfdorun(ChrisApp):
                             action      = 'store_true',
                             default     = False)
         self.add_argument("--overwrite",
-                            type        = str,
+                            type        = bool,
                             optional    = True,
                             help        = "overwrite files if already existing",
                             dest        = 'overwrite',
