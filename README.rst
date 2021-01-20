@@ -40,7 +40,8 @@ Usage
         [python] pfdorun                                                \
             --exec <CLIcmdToExec>                                       \
             [-i|--inputFile <inputFile>]                                \
-            [-f|--filterExpression <someFilter>]                        \
+            [-f|--fileFilter <filter1,filter2,...>]                     \
+            [-d|--dirFilter <filter1,filter2,...>]                      \
             [--analyzeFileIndex <someIndex>]                            \
             [--outputLeafDir <outputLeafDirFormat>]                     \
             [--threads <numThreads>]                                    \
@@ -71,9 +72,30 @@ Arguments
         specified, then do not perform a directory walk, but function only
         on the directory containing this file.
 
-        [-f|--filterExpression <someFilter>]
-        An optional string to filter the files of interest from the
-        <inputDir> tree.
+        [-f|--fileFilter <someFilter1,someFilter2,...>]
+        An optional comma-delimated string to filter out files of interest
+        from the <inputDir> tree. Each token in the expression is applied in
+        turn over the space of files in a directory location, and only files
+        that contain this token string in their filename are preserved
+
+        [-d|--dirFilter <someFilter1,someFilter2,...>]
+        Similar to the `fileFilter` but applied over the space of leaf node
+        in directory paths. A directory must contain at least one file
+        to be considered.
+
+        If a directory leaf node contains a string that corresponds to any of
+        the filter tokens, a special "hit" is recorded in the file hit list,
+        "%d-<leafnode>". For example, a directory of
+
+                            /some/dir/in/the/inputspace/here1234
+
+        with a `dirFilter` of `1234` will create a "special" hit entry of
+        "%d-here1234" to tag this directory for processing.
+
+        In addition, if a directory is filtered through, all the files in
+        that directory will be added to the filtered file list. If no files
+        are to be added, passing an explicit file filter with an "empty"
+        single string argument, i.e. `--fileFilter " "`, is advised.
 
         [--analyzeFileIndex <someIndex>]
         An optional string to control which file(s) in a specific directory
@@ -211,7 +233,7 @@ The following functions are available:
 
     %_strrepl|<target>|<replace>_<tagName>
 
-    Replace the string <target> with <replace> in the value referenced 
+    Replace the string <target> with <replace> in the value referenced
     by <tagName>.
 
 .. code::
@@ -319,6 +341,26 @@ Assume the ``inputDir`` has a file ending in ``tgz`` somewhere in the tree we wi
         fnndsc/pl-pfdorun                                                   \
         pfdorun --filterExpression tgz                                      \
                 --exec "tar xvfz %inputWorkingDir/%inputWorkingFile -C %outputDir"  \
+                --threads 0                                                 \
+                --printElapsedTime                                          \
+                --verbose 5                                                 \
+                /incoming /outgoing
+
+Copy only a single target file from the input space using a dir filter
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Assume that the ``inputDir`` has many nested directories. One of them, ``100307`` contains a single file, ``brain.mgz``. We wish to only copy this single file to the ``outputDir``:
+
+.. code:: bash
+
+    docker run -ti --rm -u $(id -u)                                         \
+        -v $(pwd)/in:/incoming                                              \
+        -v $(pwd)/out:/outgoing                                             \
+        fnndsc/pl-pfdorun                                                   \
+        pfdorun --fileFilter " " --dirFilter 100307                         \
+                --exec "cp %inputWorkingDir/brain.mgz
+                %outputWorkingDir/brain.mgz"                                \
+                --noJobLogging                                              \
                 --threads 0                                                 \
                 --printElapsedTime                                          \
                 --verbose 5                                                 \
