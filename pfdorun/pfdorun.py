@@ -2,7 +2,7 @@
 #
 # pfdorun: ChRIS DS plugin app
 #
-# (c) 2016-2020 Fetal-Neonatal Neuroimaging & Developmental Science Center
+# (c) 2016-2021 Fetal-Neonatal Neuroimaging & Developmental Science Center
 #                   Boston Children's Hospital
 #
 #              http://childrenshospital.org/FNNDSC/
@@ -65,7 +65,8 @@ Gstr_synopsis = """
         [python] pfdorun                                                \\
             --exec <CLIcmdToExec>                                       \\
             [-i|--inputFile <inputFile>]                                \\
-            [-f|--filterExpression <someFilter>]                        \\
+            [-f|--fileFilter <filter1,filter2,...>]                     \\
+            [-d|--dirFilter <filter1,filter2,...>]                      \\
             [--analyzeFileIndex <someIndex>]                            \\
             [--outputLeafDir <outputLeafDirFormat>]                     \\
             [--threads <numThreads>]                                    \\
@@ -108,9 +109,30 @@ Gstr_synopsis = """
         specified, then do not perform a directory walk, but function only
         on the directory containing this file.
 
-        [-f|--filterExpression <someFilter>]
-        An optional string to filter the files of interest from the
-        <inputDir> tree.
+        [-f|--fileFilter <someFilter1,someFilter2,...>]
+        An optional comma-delimated string to filter out files of interest
+        from the <inputDir> tree. Each token in the expression is applied in
+        turn over the space of files in a directory location, and only files
+        that contain this token string in their filename are preserved.
+
+        [-d|--dirFilter <someFilter1,someFilter2,...>]
+        Similar to the `fileFilter` but applied over the space of leaf node
+        in directory paths. A directory must contain at least one file
+        to be considered.
+
+        If a directory leaf node contains a string that corresponds to any of
+        the filter tokens, a special "hit" is recorded in the file hit list,
+        "%d-<leafnode>". For example, a directory of
+
+                            /some/dir/in/the/inputspace/here1234
+
+        with a `dirFilter` of `1234` will create a "special" hit entry of
+        "%d-here1234" to tag this directory for processing.
+
+        In addition, if a directory is filtered through, all the files in
+        that directory will be added to the filtered file list. If no files
+        are to be added, passing an explicit file filter with an "empty"
+        single string argument, i.e. `--fileFilter " "`, is advised.
 
         [--analyzeFileIndex <someIndex>]
         An optional string to control which file(s) in a specific directory
@@ -267,7 +289,7 @@ Gstr_synopsis = """
     tag to search in order to process the whole directory tree:
 
         docker run -ti --rm -u $(id -u)                                     \\
-            -v /home/rudolphpienaar/data/convert_test:/incoming             \\
+            -v $(pwd)/in:/incoming                                          \\
             -v $(pwd)/out:/outgoing                                         \\
             fnndsc/pl-pfdorun                                               \\
             pfdorun --inputFile input.json                                  \\
@@ -281,14 +303,36 @@ Gstr_synopsis = """
     Unpack a tarball that is in the input dir tree:
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    Assume the ``inputDir`` has a file ending in ``tgz`` somewhere in the tree we wish to unpack:
+    Assume the ``inputDir`` has a file ending in ``tgz`` somewhere in the tree
+    we wish to unpack:
 
         docker run -ti --rm -u $(id -u)                                     \\
-            -v /home/rudolphpienaar/data/convert_test:/incoming             \\
+            -v $(pwd)/in:/incoming                                          \\
             -v $(pwd)/out:/outgoing                                         \\
             fnndsc/pl-pfdorun                                               \\
-            pfdorun --filterExpression tgz                                  \\
-                    --exec "tar xvfz %inputWorkingDir/%inputWorkingFile -C %outputDir"  \\
+            pfdorun --fileFilter tgz                                        \\
+                    --exec "tar xvfz %inputWorkingDir/%inputWorkingFile
+                    -C %outputDir"                                          \\
+                    --threads 0                                             \\
+                    --printElapsedTime                                      \\
+                    --verbose 5                                             \\
+                    /incoming /outgoing
+
+    Copy only a single target file from the input space using a dir filter
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    Assume that the ``inputDir`` has many nested directories. One of them,
+    ``100307`` contains a single file, ``brain.mgz``. We wish to only copy
+    this single file to the ``outputDir``:
+
+        docker run -ti --rm -u $(id -u)                                     \\
+            -v $(pwd)/in:/incoming                                          \\
+            -v $(pwd)/out:/outgoing                                         \\
+            fnndsc/pl-pfdorun                                               \\
+            pfdorun --fileFilter " " --dirFilter 100307                     \\
+                    --exec "cp %inputWorkingDir/brain.mgz
+                    %outputWorkingDir/brain.mgz"                            \\
+                    --noJobLogging                                          \\
                     --threads 0                                             \\
                     --printElapsedTime                                      \\
                     --verbose 5                                             \\
@@ -298,7 +342,9 @@ Gstr_synopsis = """
     Debug
     -----
 
-    To debug the containerized version of this plugin, simply volume map the source directories of the repo into the relevant locations of the container image:
+    To debug the containerized version of this plugin, simply volume map the
+    source directories of the repo into the relevant locations of the
+    container image:
 
     .. code:: bash
 
@@ -366,11 +412,17 @@ class Pfdorun(ChrisApp):
                             help        = "command line execution string to perform",
                             dest        = 'exec',
                             default     = '')
-        self.add_argument("--filterExpression",
+        self.add_argument("-f", "--fileFilter",
                             type        = str,
                             optional    = True,
-                            help        = "string file filter",
-                            dest        = 'filter',
+                            help        = "a list of comma separated string filters to apply across the input file space",
+                            dest        = 'fileFilter',
+                            default     = '')
+        self.add_argument("-d", "--dirFilter",
+                            type        = str,
+                            optional    = True,
+                            help        = "a list of comma separated string filters to apply across the input dir space",
+                            dest        = 'dirFilter',
                             default     = '')
         self.add_argument("--analyzeFileIndex",
                             type        = str,
