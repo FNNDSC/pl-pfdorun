@@ -495,7 +495,6 @@ class Pfdorun(ChrisApp):
         """
         Define the code to be run by this plugin app.
         """
-        # pudb.set_trace()
         print(Gstr_title)
         print('Version: %s' % self.get_version())
 
