@@ -376,7 +376,15 @@ To debug the containerized version of this plugin, simply volume map the source 
 
     docker run -ti --rm -v $PWD/in:/incoming:ro -v $PWD/out:/outgoing:rw    \
         -v $PWD/pfdorun:/usr/local/lib/python3.8/dist-packages/pfdorun:ro   \
-        fnndsc/pl-pfdorun pfdorun /in /out
+        fnndsc/pl-pfdorun pfdorun /incoming /outgoing
+
+To enter the container:
+
+.. code:: bash
+
+    docker run -ti --rm -v $PWD/in:/incoming:ro -v $PWD/out:/outgoing:rw    \
+        -v $PWD/pfdorun:/usr/local/lib/python3.8/dist-packages/pfdorun:ro   \
+        --entrypoint /bin/bash fnndsc/pl-pfdorun
 
 Remember to use the ``-ti`` flag for interactivity!
 
