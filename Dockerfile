@@ -8,10 +8,9 @@
 #
 #   docker build -t local/pl-pfdorun .
 #
-# In the case of a proxy (located at say http://proxy.tch.harvard.edu:3128), do:
+# In the case of a proxy (located at 192.168.13.14:3128), do:
 #
-#   export PROXY=http://proxy.tch.harvard.edu:3128
-#   docker build --build-arg http_proxy=${PROXY} --build-arg UID=$UID -t local/pl-pfdorun .
+#    docker build --build-arg http_proxy=http://192.168.13.14:3128 --build-arg UID=$UID -t local/pl-pfdorun .
 #
 # To run an interactive shell inside this container, do:
 #
@@ -22,13 +21,15 @@
 #   docker run -ti -e HOST_IP=$(ip route | grep -v docker | awk '{if(NF==11) print $9}') --entrypoint /bin/bash local/pl-pfdorun
 #
 
-FROM fnndsc/ubuntu-python3:latest
-LABEL MAINTAINER="dev@babymri.org"
+FROM python:3.9.1-slim-buster
+LABEL maintainer="Rudolph Pienaar <dev@babyMRI.org>"
 
 ARG UID=1001
 ENV UID=$UID DEBIAN_FRONTEND=noninteractive
 
 WORKDIR /usr/local/src
+
+# COPY requirements.txt .
 COPY . .
 RUN pip install --upgrade pip                                   && \
     pip install -r requirements.txt                             && \
@@ -53,4 +54,3 @@ RUN pip install --upgrade pip                                   && \
 # executable scripts are expected to be found in the working directory
 WORKDIR /usr/local/bin
 CMD ["pfdorun", "--help"]
-

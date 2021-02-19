@@ -1,14 +1,12 @@
-#!/usr/bin/env python
 #
-# pfdorun: ChRIS DS plugin app
+# pfdorun ds ChRIS plugin app
 #
-# (c) 2016-2021 Fetal-Neonatal Neuroimaging & Developmental Science Center
+# (c) 2021 Fetal-Neonatal Neuroimaging & Developmental Science Center
 #                   Boston Children's Hospital
 #
 #              http://childrenshospital.org/FNNDSC/
 #                        dev@babyMRI.org
 #
-
 
 import  os
 import  importlib.metadata
@@ -17,9 +15,48 @@ import  pudb
 
 from chrisapp.base import ChrisApp
 
-Gstr_description = '''
+Gstr_title = """
+        __    _                        
+       / _|  | |                       
+ _ __ | |_ __| | ___  _ __ _   _ _ __  
+| '_ \|  _/ _` |/ _ \| '__| | | | '_ \ 
+| |_) | || (_| | (_) | |  | |_| | | | |
+| .__/|_| \__,_|\___/|_|   \__,_|_| |_|
+| |                                    
+|_|                                    
+"""
 
-        The pf-pfdorun plugin is a general purpose "swiss army" knife type
+Gstr_synopsis = """
+
+    NAME
+
+       pfdorun
+
+    SYNOPSIS
+
+        [python] pfdorun                                                \\
+        --exec <CLIcmdToExec>                                       \\
+        [-i|--inputFile <inputFile>]                                \\
+        [-f|--fileFilter <filter1,filter2,...>]                     \\
+        [-d|--dirFilter <filter1,filter2,...>]                      \\
+        [--analyzeFileIndex <someIndex>]                            \\
+        [--outputLeafDir <outputLeafDirFormat>]                     \\
+        [--threads <numThreads>]                                    \\
+        [--noJobLogging]                                            \\
+        [--test]                                                    \\
+        [-h] [--help]                                               \\
+        [--json]                                                    \\
+        [--man]                                                     \\
+        [--meta]                                                    \\
+        [--savejson <DIR>]                                          \\
+        [--verbose <level>]                                         \\
+        [--version]                                                 \\
+        <inputDir>                                                  \\
+        <outputDir>
+
+    DESCRIPTION
+
+            The pf-pfdorun plugin is a general purpose "swiss army" knife type
         plugin that can be used to perform somewhat arbitrary exec command
         line type commands on input directores/data. For instance:
 
@@ -37,66 +74,6 @@ Gstr_description = '''
 
         This plugin is for the most a simple wrapper around an underlying
         pfdo_run CLI exec module.
-'''
-
-Gstr_title = """
-
-       _               __    _
-      | |             / _|  | |
- _ __ | |______ _ __ | |_ __| | ___  _ __ _   _ _ __
-| '_ \| |______| '_ \|  _/ _` |/ _ \| '__| | | | '_ \ 
-| |_) | |      | |_) | || (_| | (_) | |  | |_| | | | |
-| .__/|_|      | .__/|_| \__,_|\___/|_|   \__,_|_| |_|
-| |            | |
-|_|            |_|
-
-
-
-"""
-
-Gstr_synopsis = """
-
-    NAME
-
-       pfdorun # DS plugin
-
-    SYNOPSIS
-
-        [python] pfdorun                                                \\
-            --exec <CLIcmdToExec>                                       \\
-            [-i|--inputFile <inputFile>]                                \\
-            [-f|--fileFilter <filter1,filter2,...>]                     \\
-            [-d|--dirFilter <filter1,filter2,...>]                      \\
-            [--analyzeFileIndex <someIndex>]                            \\
-            [--outputLeafDir <outputLeafDirFormat>]                     \\
-            [--threads <numThreads>]                                    \\
-            [--noJobLogging]                                            \\
-            [--test]                                                    \\
-            [-h] [--help]                                               \\
-            [--json]                                                    \\
-            [--man]                                                     \\
-            [--meta]                                                    \\
-            [--savejson <DIR>]                                          \\
-            [--verbose <level>]                                         \\
-            [--version]                                                 \\
-            <inputDir>                                                  \\
-            <outputDir>
-
-    BRIEF EXAMPLE
-
-        * Bare bones execution
-
-            docker run --rm -u $(id -u)                                 \\
-                -v $(pwd)/in:/incoming -v $(pwd)/out:/outgoing          \\
-                fnndsc/pl-pfdorun pfdorun                               \\
-                --exec "copy %inputWorkingDir/%inputWorkingFile
-                             %outputWorkingDir/%inputWorkingFile"       \\
-                --threads 0 --printElapsedTime                          \\
-                --verbose 5                                             \\
-                /incoming /outgoing
-
-    DESCRIPTION
-        {desc}
 
     ARGS
 
@@ -340,26 +317,19 @@ Gstr_synopsis = """
             fnndsc/pl-pfdorun pfdorun /in /out
 
     Remember to use the ``-ti`` flag for interactivity!
-
-
-
-
-""".format(desc = Gstr_description)
+        
+"""
 
 
 class Pfdorun(ChrisApp):
-    DESCRIPTION             = Gstr_description
-    AUTHORS                 = 'Rudolph Pienaar <dev@babyMRI.org>'
-    SELFPATH                = '/usr/local/bin'
-    SELFEXEC                = 'pfdorun'
-    EXECSHELL               = 'python'
-    TITLE                   = 'pf-pfdorun: run some CLI on input directories.'
-    CATEGORY                = 'Utility'
+    """
+    The pf-pfdorun plugin is a general purpose "swiss army" knife DS plugin that can be used to execute some CLI type commands on input directories.
+    """
+    PACKAGE                 = __package__
+    TITLE                   = 'A ChRIS plugin app'
+    CATEGORY                = ''
     TYPE                    = 'ds'
-    DOCUMENTATION           = 'http://wiki'
-    VERSION                 = importlib.metadata.version(__package__)
     ICON                    = '' # url of an icon image
-    LICENSE                 = 'Opensource (MIT)'
     MAX_NUMBER_OF_WORKERS   = 1  # Override with integer value
     MIN_NUMBER_OF_WORKERS   = 1  # Override with integer value
     MAX_CPU_LIMIT           = '' # Override with millicore value as string, e.g. '2000m'
@@ -387,6 +357,7 @@ class Pfdorun(ChrisApp):
         Define the CLI arguments accepted by this plugin app.
         Use self.add_argument to specify a new app argument.
         """
+
         self.add_argument("--inputFile", "-i",
                             help        = "input file",
                             dest        = 'inputFile',
@@ -477,6 +448,7 @@ class Pfdorun(ChrisApp):
                             help        = "verbosity level for app",
                             dest        = 'verbose',
                             default     = "1")
+
 
     def run(self, options):
         """
