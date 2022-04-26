@@ -16,14 +16,14 @@ import  pudb
 from chrisapp.base import ChrisApp
 
 Gstr_title = """
-        __    _                        
-       / _|  | |                       
- _ __ | |_ __| | ___  _ __ _   _ _ __  
-| '_ \|  _/ _` |/ _ \| '__| | | | '_ \ 
+        __    _
+       / _|  | |
+ _ __ | |_ __| | ___  _ __ _   _ _ __
+| '_ \|  _/ _` |/ _ \| '__| | | | '_ \
 | |_) | || (_| | (_) | |  | |_| | | | |
 | .__/|_| \__,_|\___/|_|   \__,_|_| |_|
-| |                                    
-|_|                                    
+| |
+|_|
 """
 
 Gstr_synopsis = """
@@ -34,7 +34,7 @@ Gstr_synopsis = """
 
     SYNOPSIS
 
-        [python] pfdorun                                                \\
+        pfdorun                                                     \\
         --exec <CLIcmdToExec>                                       \\
         [-i|--inputFile <inputFile>]                                \\
         [-f|--fileFilter <filter1,filter2,...>]                     \\
@@ -56,7 +56,7 @@ Gstr_synopsis = """
 
     DESCRIPTION
 
-            The pf-pfdorun plugin is a general purpose "swiss army" knife type
+        The pf-pfdorun plugin is a general purpose "swiss army" knife type
         plugin that can be used to perform somewhat arbitrary exec command
         line type commands on input directores/data. For instance:
 
@@ -68,7 +68,7 @@ Gstr_synopsis = """
             * misc operations on images using imagemagick;
             * and others..!
 
-        In some  respects  it functions as a  dynamic "impedence  matching"
+        In some  respects  it functions as a  dynamic "impedance  matching"
         plugin that can be used to per-usecase match the output directories
         and files of one plugin to the input requirements of another.
 
@@ -317,7 +317,7 @@ Gstr_synopsis = """
             fnndsc/pl-pfdorun pfdorun /in /out
 
     Remember to use the ``-ti`` flag for interactivity!
-        
+
 """
 
 

@@ -30,14 +30,14 @@ The pf-pfdorun plugin is a general purpose "swiss army" knife type plugin that c
 * misc operations on images using imagemagick;
 * and others..
 
-In some  respects  it functions as a  dynamic "impedence  matching" plugin that can be used to per-usecase match the output directories and files of one plugin to the input requirements of another. This plugin is for the most a simple wrapper around an underlying pfdo_run CLI exec module.
+In some  respects  it functions as a  dynamic "impedance  matching" plugin that can be used to per-usecase match the output directories and files of one plugin to the input requirements of another. This plugin is for the most a simple wrapper around an underlying pfdo_run CLI exec module.
 
 Usage
 -----
 
 .. code::
 
-        [python] pfdorun                                                \
+        pfdorun                                                         \
             --exec <CLIcmdToExec>                                       \
             [-i|--inputFile <inputFile>]                                \
             [-f|--fileFilter <filter1,filter2,...>]                     \
@@ -79,23 +79,10 @@ Arguments
         that contain this token string in their filename are preserved
 
         [-d|--dirFilter <someFilter1,someFilter2,...>]
-        Similar to the `fileFilter` but applied over the space of leaf node
-        in directory paths. A directory must contain at least one file
-        to be considered.
-
-        If a directory leaf node contains a string that corresponds to any of
-        the filter tokens, a special "hit" is recorded in the file hit list,
-        "%d-<leafnode>". For example, a directory of
-
-                            /some/dir/in/the/inputspace/here1234
-
-        with a `dirFilter` of `1234` will create a "special" hit entry of
-        "%d-here1234" to tag this directory for processing.
-
-        In addition, if a directory is filtered through, all the files in
-        that directory will be added to the filtered file list. If no files
-        are to be added, passing an explicit file filter with an "empty"
-        single string argument, i.e. `--fileFilter " "`, is advised.
+        An additional filter that will further limit any files to process to
+        only those files that exist in leaf directory nodes that have some
+        substring of each of the comma separated <someFilter> in their
+        directory name.
 
         [--analyzeFileIndex <someIndex>]
         An optional string to control which file(s) in a specific directory
