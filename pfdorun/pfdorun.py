@@ -10,16 +10,16 @@
 
 import  os
 import  importlib.metadata
-import  pfdo_run
+from . import  pfdo_run
 import  pudb
 
 from chrisapp.base import ChrisApp
 
-Gstr_title = """
+Gstr_title = f"""
         __    _
        / _|  | |
  _ __ | |_ __| | ___  _ __ _   _ _ __
-| '_ \|  _/ _` |/ _ \| '__| | | | '_ \
+| '_ \|  _/ _` |/ _ \| '__| | | | '_ \\
 | |_) | || (_| | (_) | |  | |_| | | | |
 | .__/|_| \__,_|\___/|_|   \__,_|_| |_|
 | |
@@ -468,7 +468,7 @@ class Pfdorun(ChrisApp):
 
         # The main module instantiation
         pf_do_shell         = pfdo_run.pfdo_run(vars(options))
-
+        pudb.set_trace()
         # And now run it!
         d_pfdo_shell        = pf_do_shell.run(timerStart = True)
 
