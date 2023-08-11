@@ -10,7 +10,8 @@
 
 import  os
 import  importlib.metadata
-from . import  pfdo_run
+#from . import  pfdo_run
+import  pfdo_run
 import  pudb
 
 from chrisapp.base import ChrisApp
