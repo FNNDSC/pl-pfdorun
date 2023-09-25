@@ -11,7 +11,7 @@
 import  os
 import  importlib.metadata
 #from . import  pfdo_run
-import  pfdo_run
+from pfdo_run import  pfdo_run
 import  pudb
 
 from chrisapp.base import ChrisApp
@@ -45,6 +45,8 @@ Gstr_synopsis = """
         [--threads <numThreads>]                                    \\
         [--noJobLogging]                                            \\
         [--test]                                                    \\
+        [--maxdepth <dirDepth>]                                     \\
+        [--syslog]                                                  \\
         [-h] [--help]                                               \\
         [--json]                                                    \\
         [--man]                                                     \\
@@ -140,6 +142,14 @@ Gstr_synopsis = """
                 %inputWorkingFile-stdout
 
         By specifying this option, the above files are not recorded.
+        
+        [--maxdepth <dirDepth>]
+        The maximum depth to descend relative to the <inputDir>. Note, that
+        this counts from zero! Default of '-1' implies transverse the entire
+        directory tree.
+        
+        [--syslog]
+        If specified, prepend output 'log' messages in syslog style.
 
         [-h] [--help]
         If specified, show help message and exit.
@@ -449,6 +459,19 @@ class Pfdorun(ChrisApp):
                             help        = "verbosity level for app",
                             dest        = 'verbose',
                             default     = "1")
+        self.add_argument("--syslog",
+                            type        = bool,
+                            optional    = True,
+                            action      = 'store_true',
+                            help        = "show outputs in syslog style",
+                            dest        = 'syslog',
+                            default     = False)
+        self.add_argument("--maxDepth",
+                            type        = str,
+                            optional    = True,
+                            help        = "max depth, counting from zero, to descend",
+                            dest        = 'maxDepth',
+                            default     = "-1")
 
 
     def run(self, options):
@@ -469,7 +492,7 @@ class Pfdorun(ChrisApp):
 
         # The main module instantiation
         pf_do_shell         = pfdo_run.pfdo_run(vars(options))
-        pudb.set_trace()
+        # pudb.set_trace()
         # And now run it!
         d_pfdo_shell        = pf_do_shell.run(timerStart = True)
 

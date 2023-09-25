@@ -47,6 +47,8 @@ Usage
             [--threads <numThreads>]                                    \
             [--noJobLogging]                                            \
             [--test]                                                    \
+            [--maxdepth <dirDepth>]                                     \
+            [--syslog]                                                  \
             [-h] [--help]                                               \
             [--json]                                                    \
             [--man]                                                     \
@@ -110,6 +112,14 @@ Arguments
         where %%s is the original leaf directory node, will prefix each
         final directory containing output with the text 'preview-' which
         can be useful in describing some features of the output set.
+
+        [--maxdepth <dirDepth>]
+        The maximum depth to descend relative to the <inputDir>. Note, that
+        this counts from zero! Default of '-1' implies transverse the entire
+        directory tree.
+
+        [--syslog]
+        If specified, prepend output 'log' messages in syslog style.
 
         [--threads <numThreads>]
         If specified, break the innermost analysis loop into <numThreads>
