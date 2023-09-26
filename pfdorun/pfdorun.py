@@ -59,7 +59,7 @@ Gstr_synopsis = """
 
     DESCRIPTION
 
-        The pf-pfdorun plugin is a general purpose "swiss army" knife type
+        The pl-pfdorun plugin is a general purpose "swiss army" knife type
         plugin that can be used to perform somewhat arbitrary exec command
         line type commands on input directores/data. For instance:
 
@@ -334,7 +334,7 @@ Gstr_synopsis = """
 
 class Pfdorun(ChrisApp):
     """
-    The pf-pfdorun plugin is a general purpose "swiss army" knife DS plugin that can be used to execute some CLI type commands on input directories.
+    The pl-pfdorun plugin is a general purpose "swiss army" knife DS plugin that can be used to execute some CLI type commands on input directories.
     """
     PACKAGE                 = __package__
     TITLE                   = 'A ChRIS plugin app'

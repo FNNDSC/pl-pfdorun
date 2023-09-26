@@ -13,14 +13,14 @@ pl-pfdorun
 Abstract
 --------
 
-The pf-pfdorun plugin is a general purpose "swiss army" knife DS plugin that can be used to execute some CLI type commands on input directories.
+The pl-pfdorun plugin is a general purpose "swiss army" knife DS plugin that can be used to execute some CLI type commands on input directories.
 
 
 Description
 -----------
 
 
-The pf-pfdorun plugin is a general purpose "swiss army" knife type plugin that can be used to perform somewhat arbitrary exec command line type commands on input directores/data. For instance:
+The pl-pfdorun plugin is a general purpose "swiss army" knife type plugin that can be used to perform somewhat arbitrary exec command line type commands on input directores/data. For instance:
 
 * copy (subsets of) data from the input space to output;
 * create explicit (g)zip files of data;
