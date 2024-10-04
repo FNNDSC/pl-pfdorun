@@ -1,8 +1,8 @@
 pl-pfdorun
 ================================
 
-.. image:: https://travis-ci.org/FNNDSC/pfdorun.svg?branch=master
-    :target: https://travis-ci.org/FNNDSC/pfdorun
+.. image:: https://api.travis-ci.com/FNNDSC/pfdorun.svg?branch=master
+    :target: https://app.travis-ci.com/github/fnndsc/pl-pfdorun
 
 .. image:: https://img.shields.io/badge/python-3.8%2B-blue.svg
     :target: https://github.com/FNNDSC/pl-pfdorun/blob/master/setup.py
