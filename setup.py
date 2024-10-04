@@ -6,7 +6,7 @@ with open(path.join(path.dirname(path.abspath(__file__)), 'README.rst')) as f:
 
 setup(
     name             = 'pfdorun',
-    version          = '2.2.14',
+    version          = '2.2.15',
     description      = 'The pl-pfdorun plugin is a general purpose "swiss army" knife DS plugin that can be used to execute some CLI type commands on input directories.',
     long_description = readme,
     author           = 'Rudolph Pienaar',
