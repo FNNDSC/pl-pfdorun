@@ -21,7 +21,7 @@
 #   docker run -ti -e HOST_IP=$(ip route | grep -v docker | awk '{if(NF==11) print $9}') --entrypoint /bin/bash local/pl-pfdorun
 #
 
-FROM python:3.9.1-slim-buster
+FROM python:3.9-slim-bookworm
 LABEL maintainer="Rudolph Pienaar <dev@babyMRI.org>"
 
 ARG UID=1001
@@ -42,6 +42,7 @@ RUN pip install --upgrade pip                                   && \
     apt install -y imagemagick                                  && \
     apt install -y tzdata                                       && \
     apt-get install -y locales                                  && \
+    apt-get install dcmtk -y                                    && \
     export LANGUAGE=en_US.UTF-8                                 && \
     export LANG=en_US.UTF-8                                     && \
     export LC_ALL=en_US.UTF-8                                   && \
